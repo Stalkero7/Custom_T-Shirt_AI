@@ -32,46 +32,6 @@ if (!fs.existsSync(tmpImagesDir)) {
 }
 
 /**
- * Helper function to download image from OpenAI URL and convert to base64
- */
-async function downloadImageAsBase64(imageUrl) {
-  return new Promise((resolve, reject) => {
-    try {
-      console.log('📥 Downloading image from OpenAI...');
-      
-      https.get(imageUrl, (response) => {
-        if (response.statusCode !== 200) {
-          reject(new Error(`Failed to download: ${response.statusCode}`));
-          return;
-        }
-
-        let chunks = [];
-
-        response.on('data', (chunk) => {
-          chunks.push(chunk);
-        });
-
-        response.on('end', () => {
-          try {
-            const buffer = Buffer.concat(chunks);
-            const base64 = buffer.toString('base64');
-            const dataUrl = `data:image/png;base64,${base64}`;
-            console.log('✅ Image converted to base64, size:', buffer.length, 'bytes');
-            resolve(dataUrl);
-          } catch (err) {
-            reject(new Error('Failed to convert to base64: ' + err.message));
-          }
-        });
-      }).on('error', (err) => {
-        reject(new Error('Failed to download image: ' + err.message));
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-/**
  * Helper function to download image from OpenAI URL and save locally
  */
 async function downloadAndSaveImage(imageUrl) {
@@ -193,12 +153,15 @@ app.post('/api/generate-ai', async (req, res) => {
     const imageUrl = response.data[0].url;
     console.log('✅ Image generated successfully for prompt:', prompt);
 
-    // Download and convert to base64 to avoid any loading issues
-    const base64ImageUrl = await downloadImageAsBase64(imageUrl);
+    // Download and save image locally to avoid CORS issues
+    const localImageUrl = await downloadAndSaveImage(imageUrl);
+    
+    // Clean up old images
+    cleanupOldImages();
 
     return res.json({
       success: true,
-      imageUrl: base64ImageUrl,
+      imageUrl: localImageUrl,
       prompt,
       enhancedPrompt,
     });
