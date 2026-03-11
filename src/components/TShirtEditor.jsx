@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as fabric from 'fabric';
 import ImageUploader from './ImageUploader';
 import PromptInput from './PromptInput';
-import { addImageToCanvas, constrainObjectToArea, getDesignObjects, exportCanvasDesign } from '../utils/canvasUtils';
+import { addImageToCanvas, getDesignObjects } from '../utils/canvasUtils';
 import '../styles/TShirtEditor.css';
 
 /**
@@ -19,90 +19,93 @@ const TShirtEditor = () => {
   // Initialize fabric canvas
   useEffect(() => {
     try {
-      if (!canvasRef.current) {
-        console.error('Canvas ref not found');
-        return;
-      }
+      if (!canvasRef.current) return;
 
-      // Check if canvas already exists to avoid double initialization
+      // Clean up if it already exists
       if (fabricCanvasRef.current) {
         fabricCanvasRef.current.dispose();
       }
 
-      // Create fabric canvas with white background
+      // 1. Initialize with NULL background to allow CSS mockup to show through
       const fabricCanvas = new fabric.Canvas(canvasRef.current, {
         width: 500,
         height: 600,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: null, 
       });
 
       fabricCanvasRef.current = fabricCanvas;
-      console.log('✅ Fabric canvas created successfully');
 
-      // Define printable area
-      const printableWidth = 300;
-      const printableHeight = 350;
-      const printableX = (500 - printableWidth) / 2;
-      const printableY = (600 - printableHeight) / 2;
+      // 2. Define the printable area coordinates
+      const pWidth = 300;
+      const pHeight = 350;
+      const pX = (500 - pWidth) / 2;
+      const pY = (600 - pHeight) / 2;
+      
+      const currentBounds = { x: pX, y: pY, width: pWidth, height: pHeight };
+      setPrintableArea(currentBounds);
 
-      setPrintableArea({
-        x: printableX,
-        y: printableY,
-        width: printableWidth,
-        height: printableHeight,
+      // 3. MOVING CONSTRAINT (Fixes "Invisible Wall" and Centering)
+      fabricCanvas.on('object:moving', (options) => {
+        const obj = options.target;
+        if (!obj) return;
+
+        // Account for the fact that we center the origin in canvasUtils
+        const halfWidth = obj.getScaledWidth() / 2;
+        const halfHeight = obj.getScaledHeight() / 2;
+
+        let left = obj.left;
+        let top = obj.top;
+
+        // Clamp logic: Center must stay within (Edge + Half Size)
+        const minX = currentBounds.x + halfWidth;
+        const maxX = currentBounds.x + currentBounds.width - halfWidth;
+        const minY = currentBounds.y + halfHeight;
+        const maxY = currentBounds.y + currentBounds.height - halfHeight;
+
+        if (left < minX) left = minX;
+        if (left > maxX) left = maxX;
+        if (top < minY) top = minY;
+        if (top > maxY) top = maxY;
+
+        obj.set({ left, top });
       });
 
-      // Constrain objects during movement
-      fabricCanvas.on('object:moving', (e) => {
-        if (e.target) {
-          constrainObjectToArea(e.target, {
-            x: printableX,
-            y: printableY,
-            width: printableWidth,
-            height: printableHeight,
-          });
-        }
-      });
-
-      // Constrain objects during scaling
+      // 4. SCALING CONSTRAINT (Prevents image from growing too large)
       fabricCanvas.on('object:scaling', (e) => {
-        if (e.target) {
-          constrainObjectToArea(e.target, {
-            x: printableX,
-            y: printableY,
-            width: printableWidth,
-            height: printableHeight,
-          });
+        const obj = e.target;
+        if (!obj) return;
+
+        if (obj.getScaledWidth() > currentBounds.width) {
+          obj.scaleToWidth(currentBounds.width);
         }
+        if (obj.getScaledHeight() > currentBounds.height) {
+          obj.scaleToHeight(currentBounds.height);
+        }
+        
+        // Re-run moving logic to snap back if scaling pushed it out
+        fabricCanvas.fire('object:moving', { target: obj });
       });
 
       return () => {
-        if (fabricCanvasRef.current) {
-          fabricCanvasRef.current.dispose();
-          fabricCanvasRef.current = null;
-        }
+        fabricCanvas.dispose();
+        fabricCanvasRef.current = null;
       };
     } catch (error) {
       console.error('❌ Error initializing canvas:', error);
     }
   }, []);
 
-  // Load t-shirt background
-  const loadTShirtBackground = (canvas, color) => {
-    const bgColor = color === 'white' ? '#FFFFFF' : '#1a1a1a';
-    canvas.backgroundColor = bgColor;
-    canvas.renderAll();
-  };
-
-  // Toggle t-shirt color
+  // Updated Toggle: Removes the "White Square" by keeping canvas transparent
   const handleColorToggle = (color) => {
     setSelectedColor(color);
     if (fabricCanvasRef.current) {
-      loadTShirtBackground(fabricCanvasRef.current, color);
+      // Force transparency so CSS background-image shows
+      fabricCanvasRef.current.set({ backgroundColor: null });
+      fabricCanvasRef.current.requestRenderAll();
     }
   };
 
-  // Toggle printable area box
+  // Toggle printable area box guide
   const togglePrintableAreaBox = () => {
     if (!fabricCanvasRef.current || !printableArea) return;
 
@@ -131,10 +134,8 @@ const TShirtEditor = () => {
     fabricCanvasRef.current.renderAll();
   };
 
-  // Handle image upload
   const handleImageUpload = async (imageData) => {
     if (!fabricCanvasRef.current || !printableArea) return;
-
     setIsAddingImage(true);
     try {
       await addImageToCanvas(
@@ -150,35 +151,38 @@ const TShirtEditor = () => {
     }
   };
 
-  // Handle AI generated image
   const handleImageGenerated = async (imageData) => {
-    await handleImageUpload(imageData);
+    const fullImageUrl = imageData.imageUrl.startsWith('http') 
+      ? imageData.imageUrl 
+      : `http://localhost:5000${imageData.imageUrl}`;
+    await handleImageUpload({ imageUrl: fullImageUrl });
   };
 
-  // Clear canvas
   const clearCanvas = () => {
     if (!fabricCanvasRef.current) return;
+    // Remove only user design objects, keep the guide box if it exists
     fabricCanvasRef.current.getObjects().forEach((obj) => {
-      fabricCanvasRef.current.remove(obj);
+      if (obj.name !== 'printableAreaBox') {
+        fabricCanvasRef.current.remove(obj);
+      }
     });
     fabricCanvasRef.current.renderAll();
   };
 
-  // Export design
   const handleExportDesign = () => {
-    const canvasState = getCanvasState();
-    console.log('Canvas State:', canvasState);
-    alert('Design exported! Check console for details.');
-  };
-
-  // Get canvas state
-  const getCanvasState = () => {
-    if (!fabricCanvasRef.current) return null;
-    return {
-      backgroundColor: selectedColor,
+    if (!fabricCanvasRef.current) return;
+    const data = {
+      shirtColor: selectedColor,
       objects: getDesignObjects(fabricCanvasRef.current),
-      canvasData: fabricCanvasRef.current.toDataURL('image/png'),
+      // Export only the design with transparent background for printing
+      image: fabricCanvasRef.current.toDataURL({
+        format: 'png',
+        quality: 1,
+        multiplier: 2 // Higher res for printing
+      })
     };
+    console.log('Design Exported:', data);
+    alert('Design ready for printing! Check console for data.');
   };
 
   return (
@@ -187,37 +191,38 @@ const TShirtEditor = () => {
         <h1>✨ Interactive T-Shirt Designer</h1>
         <div className="button-group">
           <button
-            className={`color-btn ${selectedColor === 'white' ? 'active' : ''}`}
+            className={`color-btn white ${selectedColor === 'white' ? 'active' : ''}`}
             onClick={() => handleColorToggle('white')}
           >
             White T-Shirt
           </button>
           <button
-            className={`color-btn ${selectedColor === 'black' ? 'active' : ''}`}
+            className={`color-btn black ${selectedColor === 'black' ? 'active' : ''}`}
             onClick={() => handleColorToggle('black')}
           >
             Black T-Shirt
           </button>
           <button className="toggle-box-btn" onClick={togglePrintableAreaBox}>
-            Toggle Printable Area
+            Toggle Guide
           </button>
           <button className="clear-btn" onClick={clearCanvas}>
             Clear Design
           </button>
           <button className="export-btn" onClick={handleExportDesign}>
-            Export Design
+            Export for Print
           </button>
         </div>
       </div>
 
       <div className="editor-layout">
         <div className="canvas-section">
-          <div className="canvas-container">
+          {/* Mockup background is applied via CSS class */}
+          <div className={`canvas-container ${selectedColor}`}>
             <canvas ref={canvasRef} id="fabricCanvas"></canvas>
           </div>
           <div className="editor-info">
-            <p>📐 Canvas: 500×600px | Printable Area: 300×350px</p>
-            <p>Drag and scale objects within the dashed red printable area</p>
+            <p>📐 Printable Area: 300×350px</p>
+            <p>Design stays inside the red guide for perfect printing.</p>
           </div>
         </div>
 

@@ -92,20 +92,42 @@
   gap: 15px;
 }
 
+/* src/styles/TShirtEditor.css */
+
 .canvas-container {
   display: flex;
   justify-content: center;
-  background: white;
+  /* Remove any background-color here */
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Mockup image settings */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
+
+/* These classes will be toggled by React */
+.canvas-container.white {
+  background-image: url('/tshirt-white.png');
+}
+
+.canvas-container.black {
+  background-image: url('/tshirt-black.png');
+}
+
+/* Make the actual canvas transparent so the shirt shows through */
+.canvas-container canvas {
+  background-color: transparent !important;
+}
+.canvas-container .fabric-canvas-wrapper,
 
 #fabricCanvas {
   border: 1px solid #ddd;
-  background: white;
   cursor: move;
+  /* THIS IS THE FIX: */
+  background-color: transparent !important;
 }
 
 .editor-info {

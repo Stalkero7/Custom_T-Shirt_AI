@@ -7,101 +7,73 @@ import * as fabric from 'fabric';
  * @param {object} printableArea - Object with x, y, width, height of printable area
  * @returns {Promise<fabric.Image>} The added fabric image object
  */
+// src/utils/canvasUtils.js
+
+// src/utils/canvasUtils.js
+
 export const addImageToCanvas = (fabricCanvas, imageUrl, printableArea) => {
   return new Promise((resolve, reject) => {
-    console.log('🖼️ Starting to load image:', imageUrl?.substring(0, 100) + '...');
-    console.log('📐 Printable area:', printableArea);
-    
-    try {
-      fabric.Image.fromURL(
-        imageUrl,
-        (img) => {
-          console.log('📍 Success callback fired, img object:', img);
-          
-          if (!img) {
-            console.error('❌ Failed to load image - returned null');
-            reject(new Error('Image failed to load'));
-            return;
-          }
+    // We use the modern Promise-based API for Fabric v6+
+    fabric.Image.fromURL(imageUrl, { crossOrigin: 'anonymous' })
+      .then((img) => {
+        // 1. Calculate scale to fit within printable area (with 20px padding)
+        const maxWidth = printableArea.width - 20;
+        const maxHeight = printableArea.height - 20;
+        const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
 
-          console.log('✅ Image loaded successfully:', img.width, 'x', img.height);
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+        });
 
-          // Calculate scale to fit within printable area
-          const maxWidth = printableArea.width - 20;
-          const maxHeight = printableArea.height - 20;
+        // 2. Center the image specifically inside the printable area coordinates
+        // Formula: Start of area + (Total Area Width / 2) - (Half of scaled image width)
+        const centerX = printableArea.x + (printableArea.width / 2) - (img.getScaledWidth() / 2);
+        const centerY = printableArea.y + (printableArea.height / 2) - (img.getScaledHeight() / 2);
 
-          let scale = 1;
-          if (img.width > maxWidth || img.height > maxHeight) {
-            const scaleX = maxWidth / img.width;
-            const scaleY = maxHeight / img.height;
-            scale = Math.min(scaleX, scaleY);
-            console.log('📏 Scaling image:', { scaleX, scaleY, finalScale: scale });
-          }
+        img.set({
+          left: centerX,
+          top: centerY,
+          selectable: true,
+          hasControls: true,
+        });
 
-          img.scale(scale);
-
-          const leftPos = printableArea.x + (printableArea.width - img.width * scale) / 2;
-          const topPos = printableArea.y + (printableArea.height - img.height * scale) / 2;
-          
-          console.log('📍 Positioning image at:', { left: leftPos, top: topPos });
-
-          // Position in center of printable area
-          img.set({
-            left: leftPos,
-            top: topPos,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-          });
-
-          console.log('🎨 Adding image to canvas...');
-          fabricCanvas.add(img);
-          fabricCanvas.setActiveObject(img);
-          fabricCanvas.renderAll();
-
-          console.log('✅ Image added to canvas and rendered');
-          resolve(img);
-        },
-        { },
-        (error) => {
-          console.error('❌ Error callback fired in fromURL:', error);
-          reject(new Error('Failed to load image: ' + error));
-        }
-      );
-    } catch (err) {
-      console.error('❌ Exception in addImageToCanvas:', err);
-      reject(err);
-    }
+        fabricCanvas.add(img);
+        fabricCanvas.setActiveObject(img);
+        fabricCanvas.renderAll();
+        resolve(img);
+      })
+      .catch((err) => {
+        console.error('❌ Error loading image:', err);
+        reject(err);
+      });
   });
 };
 
-/**
- * Constrains an object to stay within the printable area
- * @param {fabric.Object} obj - The fabric object to constrain
- * @param {object} printableArea - Object with x, y, width, height
- */
 export const constrainObjectToArea = (obj, printableArea) => {
   const { x, y, width, height } = printableArea;
+  
+  // Calculate boundaries of the object
+  const boundingRect = obj.getBoundingRect();
 
-  if (obj.left < x) obj.left = x;
-  if (obj.top < y) obj.top = y;
-
-  const objRight = obj.left + obj.width * obj.scaleX;
-  const objBottom = obj.top + obj.height * obj.scaleY;
-
-  if (objRight > x + width) {
-    obj.left = x + width - obj.width * obj.scaleX;
+  // Left boundary
+  if (obj.left < x) {
+    obj.left = x;
   }
-  if (objBottom > y + height) {
-    obj.top = y + height - obj.height * obj.scaleY;
+  // Top boundary
+  if (obj.top < y) {
+    obj.top = y;
+  }
+  // Right boundary
+  if (obj.left + boundingRect.width > x + width) {
+    obj.left = x + width - boundingRect.width;
+  }
+  // Bottom boundary
+  if (obj.top + boundingRect.height > y + height) {
+    obj.top = y + height - boundingRect.height;
   }
 };
 
-/**
- * Gets all user-added design objects (excluding background and area box)
- * @param {fabric.Canvas} fabricCanvas - The fabric canvas instance
- * @returns {array} Array of design objects
- */
 export const getDesignObjects = (fabricCanvas) => {
   return fabricCanvas
     .getObjects()
