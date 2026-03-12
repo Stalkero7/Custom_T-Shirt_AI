@@ -134,7 +134,7 @@ const MockupGenerator = () => {
   return (
     <div className="mockup-generator-container">
       <div className="mockup-header">
-        <h1>🎨 T-Shirt Mockup Generator</h1>
+        <h1>T-Shirt Mockup Generator</h1>
         <p>Create realistic product photos of your designs on t-shirts</p>
       </div>
 
@@ -178,12 +178,12 @@ const MockupGenerator = () => {
                     setDesignPreview(null);
                   }}
                 >
-                  ✕ Remove
+                  Remove
                 </button>
               </div>
             ) : (
               <div className="dropzone-content">
-                <div className="dropzone-icon">📤</div>
+                <div className="dropzone-icon"></div>
                 <p>Drag & drop your design here</p>
                 <p className="dropzone-hint">or click to select</p>
                 <p className="dropzone-formats">PNG, JPG, or WebP (max 20MB)</p>
@@ -200,10 +200,10 @@ const MockupGenerator = () => {
               <img src={mockupImage} alt="Generated mockup" className="generated-mockup" />
               <div className="mockup-actions">
                 <button className="btn-download" onClick={downloadMockup}>
-                  ⬇️ Download Mockup
+                  Download Mockup
                 </button>
                 <button className="btn-reset" onClick={resetForm}>
-                  🔄 Create New
+                  Create New
                 </button>
               </div>
             </div>
@@ -217,8 +217,8 @@ const MockupGenerator = () => {
       </div>
 
       {/* Messages */}
-      {error && <div className="message error">❌ {error}</div>}
-      {success && <div className="message success">✅ {success}</div>}
+      {error && <div className="message error">{error}</div>}
+      {success && <div className="message success">{success}</div>}
 
       {/* Generate Button */}
       <div className="mockup-actions-main">
@@ -229,10 +229,11 @@ const MockupGenerator = () => {
         >
           {loading ? (
             <>
-              <span className="spinner">●</span> Generating with AI...
+              <span className="spinner"></span>
+              Generating with AI...
             </>
           ) : (
-            '✨ Generate Realistic Mockup'
+            'Generate Realistic Mockup'
           )}
         </button>
         {designImage && (
@@ -247,7 +248,7 @@ const MockupGenerator = () => {
 
       {/* Info */}
       <div className="mockup-info">
-        <h3>💡 How it works</h3>
+        <h3>How it works</h3>
         <ul>
           <li>1. Choose a t-shirt color mockup</li>
           <li>2. Upload your design (generated or user-submitted)</li>

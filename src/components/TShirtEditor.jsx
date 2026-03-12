@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as fabric from 'fabric';
 import ImageUploader from './ImageUploader';
 import PromptInput from './PromptInput';
+import TextControls from './TextControls';
 import { addImageToCanvas, getDesignObjects } from '../utils/canvasUtils';
 import '../styles/TShirtEditor.css';
 
@@ -171,24 +172,62 @@ const TShirtEditor = () => {
 
   const handleExportDesign = () => {
     if (!fabricCanvasRef.current) return;
+
+    // Find the guide box
+    const guideBox = fabricCanvasRef.current
+      .getObjects()
+      .find((obj) => obj.name === 'printableAreaBox');
+
+    // Temporarily hide the guide box for export
+    if (guideBox) {
+      guideBox.set({ visible: false });
+    }
+
+    fabricCanvasRef.current.renderAll();
+
     const data = {
       shirtColor: selectedColor,
       objects: getDesignObjects(fabricCanvasRef.current),
-      // Export only the design with transparent background for printing
       image: fabricCanvasRef.current.toDataURL({
         format: 'png',
         quality: 1,
-        multiplier: 2 // Higher res for printing
-      })
+        multiplier: 2,
+      }),
     };
+
+    // Restore the guide box
+    if (guideBox) {
+      guideBox.set({ visible: true });
+    }
+
+    fabricCanvasRef.current.renderAll();
+
     console.log('Design Exported:', data);
     alert('Design ready for printing! Check console for data.');
+  };
+
+  const handleAddText = (textOptions) => {
+    if (!fabricCanvasRef.current || !printableArea) return;
+
+    const text = new fabric.Textbox(textOptions.text, {
+      ...textOptions,
+      left: printableArea.x + (printableArea.width / 2),
+      top: printableArea.y + (printableArea.height / 2),
+      originX: 'center',
+      originY: 'center',
+      width: printableArea.width - 20, // Padding
+      textAlign: 'center',
+    });
+
+    fabricCanvasRef.current.add(text);
+    fabricCanvasRef.current.setActiveObject(text);
+    fabricCanvasRef.current.renderAll();
   };
 
   return (
     <div className="tshirt-editor">
       <div className="editor-header">
-        <h1>✨ Interactive T-Shirt Designer</h1>
+        <h1>Interactive T-Shirt Designer</h1>
         <div className="button-group">
           <button
             className={`color-btn white ${selectedColor === 'white' ? 'active' : ''}`}
@@ -221,13 +260,14 @@ const TShirtEditor = () => {
             <canvas ref={canvasRef} id="fabricCanvas"></canvas>
           </div>
           <div className="editor-info">
-            <p>📐 Printable Area: 300×350px</p>
+            <p>Printable Area: 300×350px</p>
             <p>Design stays inside the red guide for perfect printing.</p>
           </div>
         </div>
 
         <div className="input-section">
           <ImageUploader onImageUpload={handleImageUpload} />
+          <TextControls onAddText={handleAddText} />
           <PromptInput
             onImageGenerated={handleImageGenerated}
             isLoading={isAddingImage}

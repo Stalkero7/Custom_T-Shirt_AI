@@ -9,21 +9,21 @@ function App() {
   return (
     <div className="app">
       {/* Navigation Header */}
-      <nav className="app-nav">
+      <nav className="app-header">
         <div className="nav-container">
-          <h1 className="app-title">👕 AI T-Shirt Store</h1>
+          <h1 className="app-title">AI T-Shirt Store</h1>
           <div className="nav-buttons">
             <button
               className={`nav-btn ${currentView === 'editor' ? 'active' : ''}`}
               onClick={() => setCurrentView('editor')}
             >
-              ✏️ Design Editor
+              Design Editor
             </button>
             <button
               className={`nav-btn ${currentView === 'mockup' ? 'active' : ''}`}
               onClick={() => setCurrentView('mockup')}
             >
-              🎨 Mockup Generator
+              Mockup Generator
             </button>
           </div>
         </div>

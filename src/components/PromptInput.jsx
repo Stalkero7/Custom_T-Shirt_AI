@@ -58,7 +58,7 @@ const PromptInput = ({ onImageGenerated, isLoading: externalLoading, shirtColor 
   return (
     <div className="prompt-input">
       <div className="prompt-header">
-        <h3>🤖 AI Image Generator</h3>
+        <h3>AI Image Generator</h3>
         <p>Describe the design you want to create</p>
       </div>
 
@@ -87,16 +87,6 @@ const PromptInput = ({ onImageGenerated, isLoading: externalLoading, shirtColor 
             'Generate Image'
           )}
         </button>
-      </div>
-
-      <div className="prompt-tips">
-        <p className="tips-title">💡 Tips for best results:</p>
-        <ul>
-          <li>Be specific about style (e.g., "retro", "minimalist", "3D")</li>
-          <li>Describe colors and mood you want</li>
-          <li>Keep prompts under 100 words</li>
-          <li>Use examples: "like The Office opening theme"</li>
-        </ul>
       </div>
     </div>
   );

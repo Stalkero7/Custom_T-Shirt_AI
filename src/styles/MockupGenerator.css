@@ -1,9 +1,10 @@
 .mockup-generator-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
   min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
 }
 
 .mockup-header {
@@ -20,7 +21,7 @@
 
 .mockup-header p {
   font-size: 18px;
-  opacity: 0.95;
+  opacity: 0.9;
   margin: 0;
 }
 
@@ -32,19 +33,18 @@
 }
 
 .mockup-section {
-  background: white;
+  background: rgba(44, 62, 80, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 .mockup-section h2 {
   font-size: 24px;
-  color: #333;
+  color: #ffffff;
   margin: 0 0 25px 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-weight: 600;
 }
 
 /* Mockup Selection */
@@ -56,24 +56,23 @@
 
 .mockup-card {
   cursor: pointer;
-  border: 3px solid #e0e0e0;
+  border: 2px solid #3a506b;
   border-radius: 12px;
   padding: 15px;
   text-align: center;
   transition: all 0.3s ease;
-  background: #f9f9f9;
+  background: #2c3e50;
 }
 
 .mockup-card:hover {
-  border-color: #667eea;
   transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+  border-color: #3498db;
 }
 
 .mockup-card.selected {
-  border-color: #667eea;
-  background: #f0f4ff;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  border-color: #3498db;
+  background: #3a506b;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
 }
 
 .mockup-preview {
@@ -86,26 +85,25 @@
 .mockup-card h3 {
   font-size: 14px;
   margin: 10px 0 5px 0;
-  color: #333;
+  color: #ffffff;
   font-weight: 600;
 }
 
 .mockup-card p {
   font-size: 12px;
-  color: #666;
+  color: #bdc3c7;
   margin: 0;
-  line-height: 1.4;
 }
 
 /* Design Upload */
 .dropzone {
-  border: 3px dashed #667eea;
+  border: 2px dashed #3498db;
   border-radius: 12px;
   padding: 40px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #f9f9f9;
+  background: rgba(44, 62, 80, 0.7);
   min-height: 250px;
   display: flex;
   align-items: center;
@@ -113,58 +111,30 @@
 }
 
 .dropzone:hover {
-  border-color: #764ba2;
-  background: #f5f1ff;
+  border-color: #2980b9;
+  background: rgba(44, 62, 80, 0.9);
 }
 
 .dropzone.active {
-  border-color: #764ba2;
-  background: #ede9ff;
-  transform: scale(1.02);
+  border-color: #2980b9;
+  background: rgba(44, 62, 80, 1);
 }
 
 .dropzone.has-file {
   border-style: solid;
-  border-color: #4caf50;
-  background: #f1f8f4;
-}
-
-.dropzone-content {
-  pointer-events: none;
-}
-
-.dropzone-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
+  border-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.1);
 }
 
 .dropzone-content p {
   margin: 5px 0;
-  color: #333;
+  color: #bdc3c7;
 }
 
 .dropzone-content p:first-of-type {
   font-size: 18px;
   font-weight: 600;
-}
-
-.dropzone-hint {
-  font-size: 14px;
-  color: #666;
-}
-
-.dropzone-formats {
-  font-size: 12px;
-  color: #999;
-  margin-top: 10px;
-}
-
-.design-preview-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+  color: #ffffff;
 }
 
 .design-preview {
@@ -172,32 +142,6 @@
   max-height: 180px;
   object-fit: contain;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.file-name {
-  font-size: 13px;
-  color: #666;
-  margin: 0;
-  word-break: break-word;
-  max-width: 100%;
-}
-
-.remove-btn {
-  background: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.remove-btn:hover {
-  background: #ff5252;
-  transform: scale(1.05);
 }
 
 /* Generated Mockup */
@@ -207,25 +151,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f9f9f9;
+  background: #2c3e50;
   border-radius: 12px;
-  color: #999;
-}
-
-.placeholder p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-.placeholder-hint {
-  font-size: 12px !important;
-  color: #ccc !important;
-}
-
-.generated-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  color: #7f8c8d;
 }
 
 .generated-mockup {
@@ -233,13 +161,14 @@
   max-height: 400px;
   object-fit: contain;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .mockup-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  margin-top: 15px;
 }
 
 .btn-download,
@@ -254,25 +183,23 @@
 }
 
 .btn-download {
-  background: #4caf50;
+  background: #2ecc71;
   color: white;
 }
 
 .btn-download:hover {
-  background: #45a049;
+  background: #27ae60;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .btn-reset {
-  background: #2196f3;
+  background: #3498db;
   color: white;
 }
 
 .btn-reset:hover {
-  background: #0b7dda;
+  background: #2980b9;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 /* Main Actions */
@@ -285,7 +212,7 @@
 }
 
 .btn-generate {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background: #3498db;
   color: white;
   border: none;
   border-radius: 12px;
@@ -294,48 +221,12 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
 }
 
 .btn-generate:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
-}
-
-.btn-generate:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.spinner {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-  font-size: 18px;
-}
-
-@keyframes spin {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.btn-clear-design {
-  background: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 16px 32px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-clear-design:hover {
-  background: #f57c00;
-  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4);
 }
 
 /* Messages */
@@ -345,43 +236,32 @@
   margin-bottom: 20px;
   font-weight: 600;
   text-align: center;
-  animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .message.error {
-  background: #ffebee;
-  color: #c62828;
-  border: 2px solid #ef5350;
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid #c0392b;
 }
 
 .message.success {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 2px solid #66bb6a;
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border: 1px solid #27ae60;
 }
 
 /* Info Section */
 .mockup-info {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(44, 62, 80, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 .mockup-info h3 {
   font-size: 20px;
-  color: #333;
+  color: #ffffff;
   margin: 0 0 20px 0;
 }
 
@@ -393,56 +273,8 @@
 
 .mockup-info li {
   padding: 12px 0;
-  color: #555;
+  color: #bdc3c7;
   font-size: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   line-height: 1.6;
-}
-
-.mockup-info li:last-child {
-  border-bottom: none;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .mockup-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .mockup-generator-container {
-    padding: 20px 10px;
-  }
-
-  .mockup-header h1 {
-    font-size: 32px;
-  }
-
-  .mockup-section {
-    padding: 20px;
-  }
-
-  .mockup-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .mockup-actions-main {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .btn-generate,
-  .btn-clear-design {
-    width: 100%;
-  }
-
-  .dropzone {
-    padding: 30px 20px;
-    min-height: 200px;
-  }
-
-  .mockup-card {
-    min-width: 120px;
-  }
 }
